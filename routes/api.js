@@ -9,13 +9,11 @@ var ListCollectionInfo=require("../mongo/listCollection")
 //把数据处理完后，给ajax返回结果。
 //用户注册
 router.post("/register",function(req,res,next){
-  //第二步：把数据放到mongodb中；
   var userinfo = new User({
     username:req.body["username"],
     userpwd:req.body["userpwd"],
     userpwdConfirm:req.body["userpwdConfirm"]
   });
-
   User.findOne({username: userinfo.username}, function (err, data) {
     if (!data) {
       User.create(userinfo, function (err, data) {
@@ -24,7 +22,6 @@ router.post("/register",function(req,res,next){
             console.log(err);
           }else{
             res.json({
-              issuccess:false,
               message:"注册成功"
             })
           }
@@ -32,8 +29,31 @@ router.post("/register",function(req,res,next){
       })
     } else {
       res.json({
-        issuccess:false,
         message:"注册失败"
+      })
+    }
+  });
+});
+
+//修改密码
+router.post("/edit",function(req,res,next){
+  var userinfo = new User({
+    username:req.body["username"],
+    userpwd:req.body["newpwd"],
+    userpwdConfirm:req.body["userpwdConfirm"]
+  });
+  console.log(req.body["newpwd"]);
+  User.updateOne({username: userinfo.username}, {$set:{
+      userpwd:userinfo.userpwd,
+      userpwdConfirm:userinfo.userpwdConfirm
+    }},function (err, data) {
+    if (data.ok) {
+      res.json({
+        message:"修改密码成功"
+      })
+    } else {
+      res.json({
+        message:"修改密码失败"
       })
     }
   });
@@ -47,14 +67,12 @@ router.get("/login",function(req,res,next){
       res.json({issuccess:false,message:"mongon查询出错"});
     }else{
       res.json({
-        issuccess:true,
         message:"查询成功",
         data:result
       })
       console.log(result);
     }
   })
-
 });
 
 //添加收藏歌单
@@ -72,7 +90,6 @@ router.post("/addListCollection",function(req,res,next){
             console.log(err);
           }else{
             res.json({
-              issuccess:false,
               message:"收藏歌单成功"
             })
           }
@@ -80,7 +97,6 @@ router.post("/addListCollection",function(req,res,next){
       })
     } else {
       res.json({
-        issuccess:false,
         message:"收藏歌单失败"
       })
     }
