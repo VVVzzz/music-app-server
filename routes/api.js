@@ -103,4 +103,36 @@ router.post("/addListCollection",function(req,res,next){
   });
 });
 
+router.get("/getListCollection",function(req,res,next){
+  //从mongodb中获取数据，并返回给客户端
+  ListCollectionInfo.find({},function(err,result){
+    if(err){
+      res.json({issuccess:false,message:"mongon查询出错"});
+    }else{
+      res.json({
+        message:"查询成功",
+        data:result
+      })
+    }
+  })
+});
+
+router.post("/deleteListCollection",function(req,res,next){
+  var listCollectionInfo = new ListCollectionInfo({
+    username:req.body["username"],
+    listid:req.body["listid"]
+  });
+  ListCollectionInfo.deleteOne({username: listCollectionInfo.username,listid:listCollectionInfo.listid},function (err, data) {
+    if (deleteCount) {
+      res.json({
+        message:"取消收藏成功"
+      })
+    } else {
+      res.json({
+        message:"取消收藏失败"
+      })
+    }
+  });
+});
+
 module.exports=router;
