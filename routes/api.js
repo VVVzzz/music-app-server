@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var User=require("../mongo/user");
 var ListCollectionInfo=require("../mongo/listCollection")
+var SongCollectionInfo=require("../mongo/songCollection")
 
 //写一个接口：能够接收页面通过ajax 提交过来的数据；然后把数据存储到数据库中；
 //vue 通过ajax 来访问接口； vue会把数据放在访问的对象req中；
@@ -104,7 +105,6 @@ router.post("/addListCollection",function(req,res,next){
 });
 
 router.get("/getListCollection",function(req,res,next){
-  //从mongodb中获取数据，并返回给客户端
   ListCollectionInfo.find({},function(err,result){
     if(err){
       res.json({issuccess:false,message:"mongon查询出错"});
@@ -123,7 +123,65 @@ router.post("/deleteListCollection",function(req,res,next){
     listid:req.body["listid"]
   });
   ListCollectionInfo.deleteOne({username: listCollectionInfo.username,listid:listCollectionInfo.listid},function (err, data) {
-    if (deleteCount) {
+    if (data) {
+      res.json({
+        message:"取消收藏成功"
+      })
+    } else {
+      res.json({
+        message:"取消收藏失败"
+      })
+    }
+  });
+});
+
+
+router.post("/addSongCollection",function(req,res,next){
+  var songCollectionInfo = new SongCollectionInfo({
+    username:req.body["username"],
+    songid:req.body["songid"]
+  });
+  SongCollectionInfo.findOne({songid:songCollectionInfo.songid}, function (err, data) {
+    if (!data) {
+      SongCollectionInfo.create(songCollectionInfo, function (err, data) {
+        songCollectionInfo.save(function (err,result) {
+          if(err){
+            console.log(err);
+          }else{
+            res.json({
+              message:"收藏歌曲成功"
+            })
+          }
+        })
+      })
+    } else {
+      res.json({
+        message:"收藏歌曲失败"
+      })
+    }
+  });
+});
+
+router.get("/getSongCollection",function(req,res,next){
+  SongCollectionInfo.find({},function(err,result){
+    if(err){
+      res.json({issuccess:false,message:"mongon查询出错"});
+    }else{
+      res.json({
+        message:"查询成功",
+        data:result
+      })
+    }
+  })
+});
+
+router.post("/deleteSongCollection",function(req,res,next){
+  var songCollectionInfo = new SongCollectionInfo({
+    username:req.body["username"],
+    songid:req.body["songid"]
+  });
+  SongCollectionInfo.deleteOne({username: songCollectionInfo.username,songid:songCollectionInfo.songid},function (err, data) {
+    if (data) {
       res.json({
         message:"取消收藏成功"
       })
