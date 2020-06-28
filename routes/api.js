@@ -1,4 +1,4 @@
-console.log("3")
+
 var express = require('express');
 var router = express.Router();
 var User=require("../mongo/user");
